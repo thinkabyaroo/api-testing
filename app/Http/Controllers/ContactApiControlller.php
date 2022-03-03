@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
 use Illuminate\Http\Request;
 
 class ContactApiControlller extends Controller
@@ -13,7 +14,8 @@ class ContactApiControlller extends Controller
      */
     public function index()
     {
-        //
+        $contacts=Contact::all();
+        return response()->json($contacts);
     }
 
     /**
@@ -24,7 +26,9 @@ class ContactApiControlller extends Controller
      */
     public function store(Request $request)
     {
-        return $request;
+//        return $request;
+        $contact=Contact::create($request->all());
+        return response()->json($contact,201);
     }
 
     /**
@@ -35,7 +39,11 @@ class ContactApiControlller extends Controller
      */
     public function show($id)
     {
-        //
+        $contact=Contact::find($id);
+        if(is_null($contact)){
+            return response()->json(['message'=>'not found'],404);
+        }
+        return $contact;
     }
 
     /**
@@ -47,7 +55,18 @@ class ContactApiControlller extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $contact=Contact::find($id);
+        if (is_null($contact)){
+            return response()->json(['message'=>'not found'],404);
+        }
+        if (isset($request->name)){
+            $contact->name=$request->name;
+        }
+        if (isset($request->phone)){
+            $contact->phone=$request->phone;
+        }
+        $contact->update();
+        return response()->json($contact);
     }
 
     /**
@@ -58,6 +77,11 @@ class ContactApiControlller extends Controller
      */
     public function destroy($id)
     {
-        //
+        $contact=Contact::find($id);
+        if(is_null($contact)){
+            return response()->json(['message'=>'not found'],404);
+        }
+        $contact->delete();
+        return response()->json($contact);
     }
 }
