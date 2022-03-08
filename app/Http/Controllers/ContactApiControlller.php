@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ContactResource;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -81,7 +82,7 @@ class ContactApiControlller extends Controller
         }
         return response()->json([
             'message'=>'success',
-            'data'=>$contact,
+            'data'=>new ContactResource($contact),
         ],200);
 
     }
