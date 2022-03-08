@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ContactApiControlller extends Controller
 {
@@ -15,7 +16,10 @@ class ContactApiControlller extends Controller
     public function index()
     {
         $contacts=Contact::all();
-        return response()->json($contacts);
+        return response()->json([
+            "message"=>"success",
+            'data'=>$contacts
+        ],200);
     }
 
     /**
@@ -59,9 +63,15 @@ class ContactApiControlller extends Controller
     {
         $contact=Contact::find($id);
         if(is_null($contact)){
-            return response()->json(['message'=>'not found'],404);
+            return response()->json([
+                'message'=>'not found'
+            ],404);
         }
-        return $contact;
+        return response()->json([
+            'message'=>'success',
+            'data'=>$contact,
+        ],200);
+
     }
 
     /**
@@ -73,15 +83,29 @@ class ContactApiControlller extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'name'=>'nullable|min:3',
+            'phone'=>'nullable|min:8|max:20',
+            'photo'=>'nullable|file|mimes:jpeg,png|max:2000'
+
+        ]);
         $contact=Contact::find($id);
         if (is_null($contact)){
-            return response()->json(['message'=>'not found'],404);
+            return response()->json([
+                'message'=>'not found'
+            ],404);
         }
         if (isset($request->name)){
             $contact->name=$request->name;
         }
         if (isset($request->phone)){
             $contact->phone=$request->phone;
+        }
+        if ($request->hasFile('photo')){
+            Storage::delete("public/photo/".$contact->photo);
+            $newName='photo_'.uniqid().".".$request->file('photo')->extension();
+            $request->file('photo')->storeAs('public/photo',$newName);
+            $contact->photo=$newName;
         }
         $contact->update();
         return response()->json($contact);
@@ -97,9 +121,13 @@ class ContactApiControlller extends Controller
     {
         $contact=Contact::find($id);
         if(is_null($contact)){
-            return response()->json(['message'=>'not found'],404);
+            return response()->json([
+                'message'=>'not found'
+            ],404);
         }
         $contact->delete();
-        return response()->json($contact);
+        return response()->json([
+            'message'=>'deleted',
+        ],204);
     }
 }
