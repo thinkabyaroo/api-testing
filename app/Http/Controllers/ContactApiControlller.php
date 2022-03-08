@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ContactResource;
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 class ContactApiControlller extends Controller
@@ -17,21 +18,22 @@ class ContactApiControlller extends Controller
     public function index()
     {
 
-        $contacts=Contact::get()->each(function ($contact){
-            if ($contact->photo === null){
-                $contact->photo =asset('user-default.jpg');
-
-            }else{
-                $contact->photo=asset('storage/photo/'.$contact->photo);
-            }
-            $contact->makeHidden(['created_at','updated_at']);
-            $contact->date=$contact->created_at->format("d M Y");
-            $contact->time=$contact->created_at->format("h:i s");
-
-        });
+//        $contacts=Contact::get()->each(function ($contact){
+//            if ($contact->photo === null){
+//                $contact->photo =asset('user-default.jpg');
+//
+//            }else{
+//                $contact->photo=asset('storage/photo/'.$contact->photo);
+//            }
+//            $contact->makeHidden(['created_at','updated_at']);
+//            $contact->date=$contact->created_at->format("d M Y");
+//            $contact->time=$contact->created_at->format("h:i s");
+//
+//        });
+        $contact=ContactResource::collection(Contact::all());
         return response()->json([
             "message"=>"success",
-            'data'=>$contacts
+            'data'=>$contact,
         ],200);
     }
 
