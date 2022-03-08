@@ -15,7 +15,19 @@ class ContactApiControlller extends Controller
      */
     public function index()
     {
-        $contacts=Contact::all();
+
+        $contacts=Contact::get()->each(function ($contact){
+            if ($contact->photo === null){
+                $contact->photo =asset('user-default.jpg');
+
+            }else{
+                $contact->photo=asset('storage/photo/'.$contact->photo);
+            }
+            $contact->makeHidden(['created_at','updated_at']);
+            $contact->date=$contact->created_at->format("d M Y");
+            $contact->time=$contact->created_at->format("h:i s");
+
+        });
         return response()->json([
             "message"=>"success",
             'data'=>$contacts
