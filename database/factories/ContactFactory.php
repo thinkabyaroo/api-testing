@@ -14,7 +14,10 @@ class ContactFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name'=>$this->faker->realText(10),
+            'phone'=>$this->faker->realText(300),
+            'photo'=>'default.png',
+            'user_id'=>rand(1,5)
         ];
     }
 }

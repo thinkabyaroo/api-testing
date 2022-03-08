@@ -26,9 +26,27 @@ class ContactApiControlller extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name'=>'required',
+            'phone'=>'required',
+            'photo'=>'nullable|file|mimes:jpeg,png|max:2000'
+
+        ]);
+
 //        return $request;
-        $contact=Contact::create($request->all());
-        return response()->json($contact,201);
+        $contact=new Contact();
+        $contact->name=$request->name;
+        $contact->phone=$request->phone;
+        if ($request->hasFile('photo')){
+            $newName='photo_'.uniqid().".".$request->file('photo')->extension();
+            $request->file('photo')->storeAs('public/photo',$newName);
+            $contact->photo=$newName;
+        }
+        $contact->save();
+        return response()->json([
+            'message'=>'success',
+            'data'=>$contact,
+        ],200);
     }
 
     /**
